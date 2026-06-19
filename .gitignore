@@ -1,0 +1,33 @@
+# Ignore everything by default in this working folder
+*
+
+# Git metadata files to keep
+!.gitignore
+!.gitattributes
+!README.md
+
+# Main source files to keep
+!comisionesia.ipynb
+!local_review_app.py
+!review_bundle.py
+!requirements-review-app.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+# Local app state and generated bundles
+app_data/
+exports/
+tmp_review_bundle_test/
+streamlit.stdout.log
+streamlit.stderr.log
+
+# Generated result folders
+excel_por_entityid/
+resultados_por_ejecutivo_*/
+archivos/
+archivoscsv/
