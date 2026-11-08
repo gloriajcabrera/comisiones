@@ -1,0 +1,102 @@
+{
+  "reference_id": "financial-reference-v1",
+  "description": "Caso minimo congelado del motor modular: factura y proforma pagadas, cumplimiento RETIE/LAP y porcentajes por defecto.",
+  "inputs": {
+    "invoices": [
+      {
+        "tranId": "SM-REF-1", "tranDate": "2026-01-01", "dueDate": "2026-01-31",
+        "id": 1, "type": "CustInvc", "status": "B", "entity": 1,
+        "entityid": "EJ-REF", "Servicio": "SERVICIO", "Precio": 1000,
+        "quantity": 1, "Valor": 1000, "valor_total_documento": 1000,
+        "valor_moneda_transaccion": 1000, "valor_moneda_local": 1000,
+        "foreignamountunpaid": 0, "moneda_id": 1, "createdfrom": null,
+        "custitem_sm_lineacomision": 10, "custbody_sm_reemplaza_a": null,
+        "custbody_sm_factura_reemplazo": null, "custbody_ks_sm_proforma": false,
+        "clase": "RETIE", "cc": "NORMAL", "lote": "L-REF", "memo": ""
+      }
+    ],
+    "proformas": [
+      {
+        "tranId": "PR-REF-1", "tranDate": "2026-01-01", "dueDate": "2026-01-31",
+        "id": 2, "type": "SalesOrd", "status": "B", "entity": 1,
+        "entityid": "EJ-REF", "Servicio": "SERVICIO", "Precio": 500,
+        "quantity": 1, "Valor": 500, "valor_total_documento": 500,
+        "valor_moneda_transaccion": 500, "valor_moneda_local": 500,
+        "foreignamountunpaid": 0, "moneda_id": 1, "createdfrom": null,
+        "custitem_sm_lineacomision": 10, "custbody_sm_reemplaza_a": null,
+        "custbody_sm_factura_reemplazo": null, "custbody_ks_sm_proforma": true,
+        "clase": "RETIE", "cc": "NORMAL", "lote": "L-REF", "memo": ""
+      }
+    ],
+    "invoice_payments": [
+      {
+        "factura_id": 1, "factura": "SM-REF-1", "fecha_factura": "2026-01-01",
+        "pago_id": 10, "documento_pago": "RC-REF-1", "tipo_pago": "CustPymt",
+        "fecha_contabilizacion": "2026-02-02", "fecha_real": "2026-02-01",
+        "fecha_pago": "2026-02-01", "valor_pago": 1000, "memo_pago": "PAGO"
+      }
+    ],
+    "proforma_payments": [
+      {
+        "proforma_id": 2, "proforma": "PR-REF-1", "fecha_proforma": "2026-01-01",
+        "deposito_id": 20, "deposito": "DEP-REF-1", "pago_id": 21,
+        "documento_pago": "DEP-REF-1", "tipo_pago": "DepAppl",
+        "fecha_transaccion": "2026-02-02", "fecha_real_transaccion": "2026-02-01",
+        "fecha_pago": "2026-02-01", "valor_pagado_proforma": 500,
+        "memo_pago": "PAGO", "tipo_vinculo": "Payment"
+      }
+    ],
+    "targets": [
+      {
+        "periodo": "2026-01-01", "ejecutivo": "EJ-REF",
+        "linea_comision": "RETIE/LAP", "meta": 1000, "piso": 800,
+        "jefe": "JEFE-REF", "comision_ejecutivo": null,
+        "comision_jefe": null, "gerente": "GERENTE-REF", "comision_gerente": null
+      }
+    ],
+    "costs": [{"lote": "L-REF", "Valor": 0}],
+    "cuts": [
+      {"inicio_corte": "2026-01-01", "fin_corte": "2026-02-28", "periodo_corte": "2026-02"}
+    ]
+  },
+  "expected": {
+    "stage_rows": {
+      "sales_base": 2,
+      "sales_with_credit_notes": 2,
+      "sales_with_origins": 2,
+      "sales_floor": 2,
+      "floor_compliance": 1,
+      "payment_history": 2,
+      "payment_documents": 2,
+      "commission_detail": 2
+    },
+    "floor": {
+      "period": "2026-01",
+      "executive": "EJ-REF",
+      "line": "RETIE/LAP",
+      "total_for_floor": 1500,
+      "target": 1000,
+      "floor": 800,
+      "complies": true
+    },
+    "documents": {
+      "SM-REF-1": {
+        "decision": "PAGA 100%", "factor": 1.0,
+        "executive_commission": 40, "manager_commission": 10,
+        "director_commission": 20, "real_payment_date": "2026-02-01",
+        "accounting_payment_date": "2026-02-02", "cut_period": "2026-02"
+      },
+      "PR-REF-1": {
+        "decision": "PAGA 100%", "factor": 1.0,
+        "executive_commission": 20, "manager_commission": 5,
+        "director_commission": 10, "real_payment_date": "2026-02-01",
+        "accounting_payment_date": "2026-02-02", "cut_period": "2026-02"
+      }
+    },
+    "totals": {
+      "executive_commission": 60,
+      "manager_commission": 15,
+      "director_commission": 30
+    }
+  }
+}

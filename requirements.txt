@@ -1,0 +1,6 @@
+streamlit==1.51.0
+pandas==2.3.3
+numpy==2.3.5
+openpyxl==3.1.5
+psycopg[binary]==3.3.6
+ldap3==2.9.1

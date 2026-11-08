@@ -1,0 +1,26 @@
+[Unit]
+Description=Servimeters commission management application
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=comisiones
+Group=comisiones
+WorkingDirectory=/opt/servimeters/comisiones
+EnvironmentFile=/etc/servimeters/comisiones.env
+ExecStartPre=/opt/servimeters/comisiones/.venv/bin/python -m src.commands production-check
+ExecStart=/opt/servimeters/comisiones/.venv/bin/streamlit run commission_app.py --server.address=${STREAMLIT_SERVER_ADDRESS} --server.port=${STREAMLIT_SERVER_PORT} --server.headless=true --theme.base=light --theme.backgroundColor=#F3F7F9 --theme.secondaryBackgroundColor=#FFFFFF --theme.textColor=#102D4A --browser.gatherUsageStats=false
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0027
+StateDirectory=servimeters-comisiones
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/servimeters-comisiones
+
+[Install]
+WantedBy=multi-user.target

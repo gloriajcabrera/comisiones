@@ -5,12 +5,24 @@
 !.gitignore
 !.gitattributes
 !README.md
+!commission_app.py
 
 # Main source files to keep
 !comisionesia.ipynb
 !local_review_app.py
 !review_bundle.py
+!requirements.txt
+!requirements-dev.txt
+!requirements-odbc.txt
 !requirements-review-app.txt
+!src/
+!src/**
+!docs/
+!docs/**
+!deploy/
+!deploy/**
+!tests/
+!tests/**
 
 # Python
 __pycache__/
@@ -21,6 +33,8 @@ __pycache__/
 
 # Local app state and generated bundles
 app_data/
+input_data/
+output_data/
 exports/
 tmp_review_bundle_test/
 streamlit.stdout.log

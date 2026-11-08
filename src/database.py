@@ -1,0 +1,149 @@
+"""Conexiones DB-API configurables para SQLite local y PostgreSQL productivo."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+import os
+from pathlib import Path
+import sqlite3
+from typing import Any
+
+
+SQLITE = "sqlite"
+POSTGRESQL = "postgresql"
+
+
+@dataclass(frozen=True)
+class DatabaseSettings:
+    backend: str = SQLITE
+    sqlite_path: Path | None = None
+    postgres_dsn: str | None = None
+
+    @classmethod
+    def from_environment(cls) -> "DatabaseSettings":
+        backend = os.getenv("COMMISSIONS_DB_BACKEND", SQLITE).strip().lower()
+        if backend == SQLITE:
+            path = os.getenv("COMMISSIONS_SQLITE_PATH", "app_data/commissions.db")
+            return cls(backend=SQLITE, sqlite_path=Path(path))
+        if backend == POSTGRESQL:
+            dsn = os.getenv("COMMISSIONS_POSTGRES_DSN", "").strip()
+            if not dsn:
+                raise ValueError("Falta COMMISSIONS_POSTGRES_DSN")
+            return cls(backend=POSTGRESQL, postgres_dsn=dsn)
+        raise ValueError(f"Motor de base de datos no soportado: {backend}")
+
+
+class DatabaseSession:
+    def __init__(self, connection: Any, backend: str) -> None:
+        self.connection = connection
+        self.backend = backend
+
+    def __enter__(self) -> "DatabaseSession":
+        return self
+
+    def __exit__(self, exc_type, exc, traceback) -> None:
+        try:
+            if exc_type is None:
+                self.connection.commit()
+            else:
+                self.connection.rollback()
+        finally:
+            self.connection.close()
+
+    def execute(self, sql: str, parameters: tuple[object, ...] = ()):
+        statement = sql if self.backend == SQLITE else sql.replace("?", "%s")
+        return self.connection.execute(statement, parameters)
+
+    def executemany(self, sql: str, rows: list[tuple[object, ...]]) -> None:
+        statement = sql if self.backend == SQLITE else sql.replace("?", "%s")
+        if self.backend == SQLITE:
+            self.connection.executemany(statement, rows)
+            return
+        cursor = self.connection.cursor()
+        try:
+            cursor.executemany(statement, rows)
+        finally:
+            cursor.close()
+
+    def insert_returning_id(
+        self, sql: str, parameters: tuple[object, ...] = (), id_column: str = "id"
+    ) -> int:
+        if not id_column.replace("_", "").isalnum():
+            raise ValueError("Nombre de columna inválido")
+        if self.backend == POSTGRESQL:
+            cursor = self.execute(f"{sql.rstrip()} RETURNING {id_column}", parameters)
+            return int(cursor.fetchone()[0])
+        cursor = self.execute(sql, parameters)
+        return int(cursor.lastrowid)
+
+    def execute_statements(self, statements: tuple[str, ...]) -> None:
+        for statement in statements:
+            self.execute(statement)
+
+    def begin_write(self) -> None:
+        if self.backend == SQLITE:
+            self.execute("BEGIN IMMEDIATE")
+
+    def lock_table_for_write(self, table_name: str) -> None:
+        if not table_name.replace("_", "").isalnum():
+            raise ValueError("Nombre de tabla inválido")
+        self.begin_write()
+        if self.backend == POSTGRESQL:
+            self.execute(f"LOCK TABLE {table_name} IN EXCLUSIVE MODE")
+
+
+class Database:
+    def __init__(self, settings: DatabaseSettings) -> None:
+        if settings.backend not in {SQLITE, POSTGRESQL}:
+            raise ValueError(f"Motor de base de datos no soportado: {settings.backend}")
+        self.settings = settings
+        if settings.backend == SQLITE:
+            if settings.sqlite_path is None:
+                raise ValueError("SQLite requiere sqlite_path")
+            settings.sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+        elif not settings.postgres_dsn:
+            raise ValueError("PostgreSQL requiere postgres_dsn")
+
+    @classmethod
+    def sqlite(cls, path: str | Path) -> "Database":
+        return cls(DatabaseSettings(backend=SQLITE, sqlite_path=Path(path)))
+
+    @classmethod
+    def postgresql(cls, dsn: str) -> "Database":
+        return cls(DatabaseSettings(backend=POSTGRESQL, postgres_dsn=dsn))
+
+    @property
+    def backend(self) -> str:
+        return self.settings.backend
+
+    def session(self) -> DatabaseSession:
+        if self.backend == SQLITE:
+            connection = sqlite3.connect(self.settings.sqlite_path)
+            connection.execute("PRAGMA foreign_keys = ON")
+            return DatabaseSession(connection, SQLITE)
+
+        try:
+            import psycopg
+        except ImportError as exc:
+            raise RuntimeError(
+                "PostgreSQL requiere instalar el driver opcional 'psycopg'."
+            ) from exc
+        return DatabaseSession(psycopg.connect(self.settings.postgres_dsn), POSTGRESQL)
+
+    def identity_primary_key(self) -> str:
+        if self.backend == SQLITE:
+            return "INTEGER PRIMARY KEY AUTOINCREMENT"
+        return "BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY"
+
+    def identifier_type(self) -> str:
+        return "INTEGER" if self.backend == SQLITE else "BIGINT"
+
+    def money_type(self) -> str:
+        return "REAL" if self.backend == SQLITE else "NUMERIC(20, 6)"
+
+    def create_view_statement(self, view_name: str, query: str) -> str:
+        if not view_name.replace("_", "").isalnum():
+            raise ValueError("Nombre de vista inválido")
+        if self.backend == SQLITE:
+            return f"CREATE VIEW IF NOT EXISTS {view_name} AS {query}"
+        return f"CREATE OR REPLACE VIEW {view_name} AS {query}"

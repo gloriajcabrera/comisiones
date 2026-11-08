@@ -1,0 +1,69 @@
+{
+  "source_generated_at": "2026-10-08T09:11:37",
+  "documents_requested": [
+    "SM72209", "SM72210", "PR-9553", "SM72586", "PR-9551", "SM72791",
+    "SM73590", "PR-8420", "PR-9599", "SM72083", "SM70201", "SM65917",
+    "SM72582", "SM71487", "SM71632", "SM71061"
+  ],
+  "dataset_controls": {
+    "detalle_reporte": {"rows": 96260, "columns": 27},
+    "cumpl_reporte": {"rows": 5241, "columns": 12, "sum_Total Para Piso": 158244558037.74},
+    "cumplimiento_final": {"rows": 5241, "columns": 14, "sum_TotalParaPiso": 158244558037.74},
+    "para_pagar_full_reporte": {
+      "rows": 96260,
+      "columns": 68,
+      "sum_Valor Comision Ejecutivo": 434567060.0,
+      "sum_Valor Comision Jefe": 103798085.1,
+      "sum_Valor Comision Gerente": 220355740.6,
+      "sum_Total Para Piso": 6897407208275.65
+    },
+    "para_pago_full": {"rows": 96260, "columns": 150, "sum_TotalParaPiso": 6897407208275.65},
+    "para_revision_reporte": {
+      "rows": 83693,
+      "columns": 68,
+      "sum_Valor Comision Ejecutivo": 0.0,
+      "sum_Valor Comision Jefe": 0.0,
+      "sum_Valor Comision Gerente": 0.0,
+      "sum_Total Para Piso": 6126218291363.17
+    },
+    "resumen_pago": {
+      "rows": 67,
+      "columns": 18,
+      "sum_COMISION": 114762886.0,
+      "sum_DESCUENTOS": 0.0,
+      "sum_VALOR A PAGAR": 114762886.0
+    }
+  },
+  "payment_date_cases": {
+    "PR-9551": {"real_payment_date": null, "accounting_payment_date": null, "first_payment_date": null, "full_payment_date": null, "payment_date_origin": "NO APLICA - SALDO PENDIENTE"},
+    "PR-9553": {"real_payment_date": "2026-09-15", "accounting_payment_date": "2026-09-18", "first_payment_date": "2026-09-15", "full_payment_date": "2026-09-15", "payment_date_origin": "FECHA EN QUE SE COMPLETO EL PAGO"},
+    "SM65917": {"real_payment_date": "2026-09-15", "accounting_payment_date": "2026-09-16", "first_payment_date": "2026-09-15", "full_payment_date": "2026-09-15", "payment_date_origin": "FECHA EN QUE SE COMPLETO EL PAGO"},
+    "SM72209": {"real_payment_date": null, "accounting_payment_date": null, "first_payment_date": null, "full_payment_date": null, "payment_date_origin": "DOCUMENTO CON NOTA CREDITO"},
+    "SM72210": {"real_payment_date": "2026-08-24", "accounting_payment_date": "2026-08-27", "first_payment_date": "2026-08-24", "full_payment_date": "2026-08-24", "payment_date_origin": "FECHA EN QUE SE COMPLETO EL PAGO"},
+    "SM72582": {"real_payment_date": "2026-09-15", "accounting_payment_date": "2026-09-16", "first_payment_date": "2026-09-15", "full_payment_date": "2026-09-15", "payment_date_origin": "FECHA EN QUE SE COMPLETO EL PAGO"},
+    "SM72586": {"real_payment_date": "2026-09-15", "accounting_payment_date": "2026-09-18", "first_payment_date": "2026-09-15", "full_payment_date": "2026-09-15", "payment_date_origin": "FECHA EN QUE SE COMPLETO EL PAGO"},
+    "SM72791": {"real_payment_date": null, "accounting_payment_date": null, "first_payment_date": null, "full_payment_date": null, "payment_date_origin": "NO APLICA - SALDO PENDIENTE"},
+    "SM73590": {"real_payment_date": null, "accounting_payment_date": null, "first_payment_date": null, "full_payment_date": null, "payment_date_origin": "NO APLICA - SALDO PENDIENTE"}
+  },
+  "document_cases": {
+    "PR-8420": {"rows": 3, "origin": null, "commission_base": "PR-8420", "payment_source": "SM66954", "credit_notes": null, "invoice_value_sum": 22000000.0, "paid_value_max": 26180000.0, "balance_max": 0.0, "commission_factor_max": null, "payment_decision": "PARA REVISAR"},
+    "PR-9551": {"rows": 1, "origin": null, "commission_base": "PR-9551", "payment_source": "SM73590", "credit_notes": "NC5317", "invoice_value_sum": 16560000.0, "paid_value_max": 0.0, "balance_max": 19706400.0, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"},
+    "PR-9553": {"rows": 1, "origin": null, "commission_base": "PR-9553", "payment_source": "SM72586", "credit_notes": null, "invoice_value_sum": 1750000.0, "paid_value_max": 2082500.0, "balance_max": 0.0, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"},
+    "PR-9599": {"rows": 1, "origin": null, "commission_base": "PR-9599", "payment_source": "SM73852", "credit_notes": "NC5332", "invoice_value_sum": 5813384.0, "paid_value_max": 0.0, "balance_max": 8719881.3, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"},
+    "SM65917": {"rows": 1, "origin": null, "commission_base": "SM65917", "payment_source": "SM72582", "credit_notes": "NC5247", "invoice_value_sum": 2760000.0, "paid_value_max": 3272500.0, "balance_max": 0.0, "commission_factor_max": null, "payment_decision": "PARA REVISAR"},
+    "SM66954": {"rows": 3, "origin": "PR-8420", "commission_base": "PR-8420", "payment_source": "SM66954", "credit_notes": null, "invoice_value_sum": 22000000.0, "paid_value_max": 26180000.0, "balance_max": 0.0, "commission_factor_max": null, "payment_decision": "PARA REVISAR"},
+    "SM70201": {"rows": 3, "origin": null, "commission_base": "SM70201", "payment_source": "SM70201", "credit_notes": null, "invoice_value_sum": 657100.0, "paid_value_max": 781949.0, "balance_max": 0.0, "commission_factor_max": 0.5, "payment_decision": "PAGA 50%"},
+    "SM71061": {"rows": 1, "origin": null, "commission_base": "SM71061", "payment_source": "SM71061", "credit_notes": null, "invoice_value_sum": 11900000.0, "paid_value_max": 14161000.0, "balance_max": 0.0, "commission_factor_max": 0.5, "payment_decision": "PAGA 50%"},
+    "SM71487": {"rows": 1, "origin": null, "commission_base": "SM71487", "payment_source": "SM71487", "credit_notes": null, "invoice_value_sum": 9470000.0, "paid_value_max": 11269300.0, "balance_max": 0.0, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"},
+    "SM71632": {"rows": 5, "origin": null, "commission_base": "SM71632", "payment_source": "SM71632", "credit_notes": null, "invoice_value_sum": 4350000.0, "paid_value_max": 5176500.0, "balance_max": 0.0, "commission_factor_max": 1.0, "payment_decision": "PAGA 100%"},
+    "SM72083": {"rows": 3, "origin": null, "commission_base": "SM72083", "payment_source": "SM72083", "credit_notes": null, "invoice_value_sum": 1413300.0, "paid_value_max": 1681827.0, "balance_max": 0.0, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"},
+    "SM72209": {"rows": 1, "origin": null, "commission_base": "SM72209", "payment_source": "SM72209", "credit_notes": "NC5226", "invoice_value_sum": 12950000.0, "paid_value_max": 15410500.0, "balance_max": 0.0, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"},
+    "SM72210": {"rows": 1, "origin": null, "commission_base": "SM72210", "payment_source": "SM72210", "credit_notes": null, "invoice_value_sum": 9250000.0, "paid_value_max": 11007500.0, "balance_max": 0.0, "commission_factor_max": 1.0, "payment_decision": "PAGA 100%"},
+    "SM72582": {"rows": 1, "origin": "SM65917", "commission_base": "SM65917", "payment_source": "SM72582", "credit_notes": "NC5247", "invoice_value_sum": 2750000.0, "paid_value_max": 3272500.0, "balance_max": 0.0, "commission_factor_max": null, "payment_decision": "PARA REVISAR"},
+    "SM72586": {"rows": 1, "origin": "PR-9553", "commission_base": "PR-9553", "payment_source": "SM72586", "credit_notes": null, "invoice_value_sum": 1750000.0, "paid_value_max": 2082500.0, "balance_max": 0.0, "commission_factor_max": 0.5, "payment_decision": "PAGA 50%"},
+    "SM72791": {"rows": 1, "origin": "PR-9551", "commission_base": "PR-9551", "payment_source": "SM73590", "credit_notes": "NC5317", "invoice_value_sum": 16560000.0, "paid_value_max": 0.0, "balance_max": 19706400.0, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"},
+    "SM73246": {"rows": 1, "origin": "PR-9599", "commission_base": "PR-9599", "payment_source": "SM73852", "credit_notes": "NC5332", "invoice_value_sum": 5813384.0, "paid_value_max": 0.0, "balance_max": 8719881.3, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"},
+    "SM73590": {"rows": 1, "origin": "SM72791", "commission_base": "PR-9551", "payment_source": "SM73590", "credit_notes": "NC5317", "invoice_value_sum": 16560000.0, "paid_value_max": 0.0, "balance_max": 19706400.0, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"},
+    "SM73852": {"rows": 1, "origin": "SM73246", "commission_base": "PR-9599", "payment_source": "SM73852", "credit_notes": "NC5332", "invoice_value_sum": 7327631.4, "paid_value_max": 0.0, "balance_max": 8719881.3, "commission_factor_max": 0.0, "payment_decision": "NO PAGA"}
+  }
+}
