@@ -17,11 +17,33 @@ from commission_app import (
     _valid_period,
     _menus_for_profile,
     _clear_session_state,
+    _calculation_review_issues,
 )
 from src.access_control import PERM_NETSUITE_SYNC
 
 
 class CommissionAppTest(unittest.TestCase):
+    def test_calculation_review_issues_consolidates_payments_and_floor(self):
+        provider = _demo_provider()
+        provider.result.commission_detail.loc[0, "decision_pago"] = "PARA REVISAR"
+        floor = provider.result.floor_compliance
+        floor["requiere_revision_cumplimiento"] = False
+        floor["motivo_revision_cumplimiento"] = ""
+        floor.loc[0, "requiere_revision_cumplimiento"] = True
+        floor.loc[0, "motivo_revision_cumplimiento"] = "Validar línea"
+
+        issues, payment_count, floor_count = _calculation_review_issues(
+            provider.result, provider, "demo-2026-09"
+        )
+
+        self.assertEqual(2, len(issues))
+        self.assertEqual(1, payment_count)
+        self.assertEqual(1, floor_count)
+        self.assertEqual(
+            {"Pago", "Cumplimiento de piso"}, set(issues["issue_type"])
+        )
+        self.assertIn("Validar línea", set(issues["review_reason"]))
+
     def test_productive_runtime_configures_logging_once_through_cache(self):
         runtime = object()
         _production_runtime.clear()

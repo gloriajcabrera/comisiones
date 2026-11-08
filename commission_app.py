@@ -160,6 +160,8 @@ PROFILE_SCOPE = {
 }
 
 COLUMN_LABELS = {
+    "issue_type": "Tipo de pendiente",
+    "review_reason": "Qué debe revisarse",
     "document": "Documento",
     "document_date": "Fecha documento",
     "executive": "Ejecutivo",
@@ -976,6 +978,63 @@ def _netsuite_sync_workspace(runtime, actor_user_id: int) -> None:
         st.error(f"La sincronización no pudo completarse: {exc}")
 
 
+def _calculation_review_issues(
+    result: CommissionResult,
+    provider: InMemoryCalculationResultProvider,
+    run_code: str,
+) -> tuple[pd.DataFrame, int, int]:
+    def column(frame: pd.DataFrame, name: str) -> pd.Series:
+        if name in frame.columns:
+            return frame[name]
+        return pd.Series(pd.NA, index=frame.index, dtype="object")
+
+    payments = provider.review_results(run_code).copy()
+    payment_issues = pd.DataFrame({
+        "issue_type": pd.Series("Pago", index=payments.index, dtype="string"),
+        "review_reason": column(payments, "payment_reason"),
+        "executive": column(payments, "executive"),
+        "period": column(payments, "period"),
+        "commission_line": column(payments, "commission_line"),
+        "document": column(payments, "document"),
+        "decision": column(payments, "decision"),
+        "document_value": column(payments, "document_value"),
+        "payment_date": column(payments, "payment_date"),
+        "request_id": column(payments, "request_id"),
+        "request_status": column(payments, "request_status"),
+    })
+
+    floor = result.floor_compliance.copy()
+    review_flag = floor.get(
+        "requiere_revision_cumplimiento",
+        pd.Series(False, index=floor.index),
+    ).astype("boolean").fillna(False)
+    floor = floor.loc[review_flag].copy()
+    floor_period = floor.get("periodo_mes", pd.Series(pd.NA, index=floor.index))
+    floor_issues = pd.DataFrame({
+        "issue_type": pd.Series(
+            "Cumplimiento de piso", index=floor.index, dtype="string"
+        ),
+        "review_reason": column(floor, "motivo_revision_cumplimiento").combine_first(
+            column(floor, "observacion_cumple")
+        ),
+        "executive": column(floor, "entityid"),
+        "period": floor_period.astype("string"),
+        "commission_line": column(floor, "linea_comision"),
+        "document": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "decision": pd.Series(
+            "REVISAR CUMPLIMIENTO", index=floor.index, dtype="string"
+        ),
+        "document_value": pd.to_numeric(
+            column(floor, "TotalParaPiso"), errors="coerce"
+        ),
+        "payment_date": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "request_id": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "request_status": pd.Series(pd.NA, index=floor.index, dtype="string"),
+    })
+    issues = pd.concat([floor_issues, payment_issues], ignore_index=True)
+    return issues, len(payment_issues), len(floor_issues)
+
+
 def _calculation_runs_workspace(runtime=None, actor_user_id: int | None = None) -> None:
     if runtime is None or actor_user_id is None:
         demo = pd.DataFrame([{
@@ -1074,6 +1133,7 @@ def _calculation_runs_workspace(runtime=None, actor_user_id: int | None = None) 
             review_view = st.radio(
                 "Vista de revisión",
                 [
+                    "Pendientes de revisión",
                     "Resumen de pagos",
                     "Cumplimiento de pisos",
                     "Facturas evaluadas",
@@ -1082,7 +1142,31 @@ def _calculation_runs_workspace(runtime=None, actor_user_id: int | None = None) 
                 horizontal=True,
                 key="calculation_review_view",
             )
-            if review_view == "Resumen de pagos":
+            if review_view == "Pendientes de revisión":
+                review_data, payment_count, floor_count = _calculation_review_issues(
+                    review_result, draft_provider, selected_run
+                )
+                _metric_cards(
+                    [
+                        ("Total pendientes", str(len(review_data))),
+                        ("Pagos", str(payment_count)),
+                        ("Cumplimientos", str(floor_count)),
+                    ],
+                    "Revisión del cálculo",
+                )
+                if review_data.empty:
+                    st.success("El cálculo no tiene advertencias pendientes de revisión.")
+                else:
+                    st.warning(
+                        "Revise y resuelva estos registros antes de enviar el cálculo "
+                        "a aprobación. El motivo aparece en la segunda columna."
+                    )
+                    review_data = _filter(
+                        review_data,
+                        "calculation-draft-issues",
+                        ("issue_type", "period", "executive", "commission_line"),
+                    )
+            elif review_view == "Resumen de pagos":
                 review_data = draft_provider.payment_summary(selected_run)
                 review_data = _filter(
                     review_data,
@@ -2349,6 +2433,7 @@ def _filter(
     )
     columns = st.columns(len(filter_columns))
     labels = {
+        "issue_type": "Tipo de pendiente",
         "period": "Periodo",
         "executive": "Ejecutivo",
         "commission_line": "Línea",
