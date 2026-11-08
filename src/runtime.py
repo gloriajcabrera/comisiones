@@ -210,7 +210,7 @@ def build_runtime(
         sync_repository,
         calculations,
         rules_version=os.getenv(
-            "COMMISSIONS_RULES_VERSION", "engine-2026-11-controlled-workflow-v1"
+            "COMMISSIONS_RULES_VERSION", "engine-2026-11-relationship-context-v2"
         ).strip(),
         period_repository=periods,
         discount_repository=discounts,
