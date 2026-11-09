@@ -162,6 +162,7 @@ PROFILE_SCOPE = {
 COLUMN_LABELS = {
     "issue_type": "Tipo de pendiente",
     "review_reason": "Qué debe revisarse",
+    "affected_lines": "Líneas afectadas",
     "document": "Documento",
     "document_date": "Fecha documento",
     "executive": "Ejecutivo",
@@ -998,10 +999,56 @@ def _calculation_review_issues(
         "document": column(payments, "document"),
         "decision": column(payments, "decision"),
         "document_value": column(payments, "document_value"),
+        "document_date": column(payments, "document_date"),
+        "credit_note": column(payments, "credit_note"),
+        "credit_note_date": column(payments, "credit_note_date"),
+        "replacement_document": column(payments, "replacement_document"),
+        "replacement_document_date": column(
+            payments, "replacement_document_date"
+        ),
+        "lot": column(payments, "lot"),
+        "service": column(payments, "service"),
         "payment_date": column(payments, "payment_date"),
+        "accounting_date": column(payments, "accounting_date"),
+        "payment_document": column(payments, "payment_document"),
+        "paid_value": column(payments, "paid_value"),
         "request_id": column(payments, "request_id"),
         "request_status": column(payments, "request_status"),
     })
+    payment_issues["affected_lines"] = 1
+
+    if not payment_issues.empty:
+        group_columns = [
+            "issue_type", "review_reason", "executive", "period",
+            "commission_line", "document", "decision",
+        ]
+
+        def joined_unique(values: pd.Series) -> object:
+            clean = values.dropna().astype("string").str.strip()
+            clean = clean.loc[clean.ne("") & clean.ne("None")]
+            unique = list(dict.fromkeys(clean.tolist()))
+            return " | ".join(unique) if unique else pd.NA
+
+        payment_issues = (
+            payment_issues.groupby(group_columns, dropna=False, as_index=False)
+            .agg({
+                "affected_lines": "sum",
+                "document_value": "max",
+                "document_date": joined_unique,
+                "credit_note": joined_unique,
+                "credit_note_date": joined_unique,
+                "replacement_document": joined_unique,
+                "replacement_document_date": joined_unique,
+                "lot": joined_unique,
+                "service": joined_unique,
+                "payment_date": joined_unique,
+                "accounting_date": joined_unique,
+                "payment_document": joined_unique,
+                "paid_value": "max",
+                "request_id": joined_unique,
+                "request_status": joined_unique,
+            })
+        )
 
     floor = result.floor_compliance.copy()
     review_flag = floor.get(
@@ -1027,7 +1074,22 @@ def _calculation_review_issues(
         "document_value": pd.to_numeric(
             column(floor, "TotalParaPiso"), errors="coerce"
         ),
+        "affected_lines": pd.Series(pd.NA, index=floor.index, dtype="Int64"),
+        "document_date": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "credit_note": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "credit_note_date": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "replacement_document": pd.Series(
+            pd.NA, index=floor.index, dtype="string"
+        ),
+        "replacement_document_date": pd.Series(
+            pd.NA, index=floor.index, dtype="string"
+        ),
+        "lot": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "service": pd.Series(pd.NA, index=floor.index, dtype="string"),
         "payment_date": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "accounting_date": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "payment_document": pd.Series(pd.NA, index=floor.index, dtype="string"),
+        "paid_value": pd.Series(pd.NA, index=floor.index, dtype="Float64"),
         "request_id": pd.Series(pd.NA, index=floor.index, dtype="string"),
         "request_status": pd.Series(pd.NA, index=floor.index, dtype="string"),
     })

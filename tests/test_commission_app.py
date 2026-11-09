@@ -26,6 +26,8 @@ class CommissionAppTest(unittest.TestCase):
     def test_calculation_review_issues_consolidates_payments_and_floor(self):
         provider = _demo_provider()
         provider.result.commission_detail.loc[0, "decision_pago"] = "PARA REVISAR"
+        detail = provider.result.commission_detail
+        detail.loc[len(detail)] = detail.iloc[0]
         floor = provider.result.floor_compliance
         floor["requiere_revision_cumplimiento"] = False
         floor["motivo_revision_cumplimiento"] = ""
@@ -43,6 +45,8 @@ class CommissionAppTest(unittest.TestCase):
             {"Pago", "Cumplimiento de piso"}, set(issues["issue_type"])
         )
         self.assertIn("Validar línea", set(issues["review_reason"]))
+        payment_issue = issues.loc[issues["issue_type"].eq("Pago")].iloc[0]
+        self.assertEqual(2, payment_issue["affected_lines"])
 
     def test_productive_runtime_configures_logging_once_through_cache(self):
         runtime = object()
